@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "laravel.fullname" . }}-letout-actions
+  labels:
+    {{- include "laravel.labels" . | nindent 4 }}
+data:
+  git-action: |-
+    #!/bin/bash -e
+    set -xe
+
+    /usr/bin/git clone https://github.com/letout-io/laravel.git /var/www/html
+    /usr/local/bin/composer install --working-dir /var/www/html
+    /bin/chown -R www-data:www-data /var/www/html
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "laravel.fullname" . }}-laravel-actions
+  labels:
+    {{- include "laravel.labels" . | nindent 4 }}
+data:
+  post-start: |-
+    #!/bin/bash -e
+    set -xe
+
+    php artisan down
+    php artisan optimize
+    sleep $[ ( $RANDOM % 10 )  + 1 ]s
+    # php artisan migrate --force
+    php artisan up
+  pre-stop: |-
+    #!/bin/bash -e
+    set -xe
+    
+    php artisan down
+  pre-stop-worker: |-
+    #!/bin/bash -e
+    set -xe
+    
+    php artisan down
+    # php artisan horizon:terminate
+
+---

@@ -1,0 +1,15 @@
+apiVersion: app.letout.io/v1alpha1
+kind: Laravel
+metadata:
+  name: laravel-sample
+spec:
+  image:
+    repository: declum/laravel
+    pullPolicy: Always
+    tag: latest
+  ingress:
+    className: nginx
+    hosts:
+    - sample.172.16.137.128.sslip.io
+    - web.172.16.137.128.sslip.io
+    - www.172.16.137.128.sslip.io
