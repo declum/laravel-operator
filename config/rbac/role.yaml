@@ -20,6 +20,20 @@ rules:
   - secrets
   verbs:
   - "*"
+# We need to manage Helm release secrets
+- apiGroups:
+  - "networking.k8s.io"
+  resources:
+  - ingresses
+  verbs:
+  - "*"
+# We need to manage Helm release secrets
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - "*"
 # We need to create events on CRs about things happening during reconciliation
 - apiGroups:
   - ""
