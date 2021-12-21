@@ -70,3 +70,118 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+postStart: |-
+    #!/bin/bash -e
+    set -xe
+
+    php artisan down
+    php artisan optimize
+    sleep $[ ( $RANDOM % 10 )  + 1 ]s
+    # php artisan migrate --force
+    php artisan up
+
+preStop: |-
+    #!/bin/bash -e
+    set -xe
+    
+    php artisan down
+
+preStopWorker: |-
+    #!/bin/bash -e
+    set -xe
+    
+    php artisan down
+
+    # Shutdown horizon
+    HORIZON_VERSION=$(jq -r '.require."laravel/horizon"' composer.json)
+    if [ "$horizon" = "" ];
+    then
+      echo 'Horizon is missing'
+      supervisorctl --configuration /etc/supervisor/supervisord.conf stop all
+    else
+      php artisan horizon:terminate
+    fi
+
+startWorker: |-
+    #!/bin/bash -e
+    set -xe
+    
+    php artisan up
+
+    # Shutdown horizon
+    HORIZON_VERSION=$(jq -r '.require."laravel/horizon"' composer.json)
+    if [ "$horizon" = "" ];
+    then
+      echo 'Horizon is missing'
+      supervisord --nodaemon --configuration /etc/supervisor/supervisord.conf
+    else
+      php artisan horizon
+    fi
+
+
+stopWorker: |-
+    #!/bin/bash -e
+    set -xe
+    
+    php artisan down
+
+    # Shutdown horizon
+    HORIZON_VERSION=$(jq -r '.require."laravel/horizon"' composer.json)
+    if [ "$horizon" = "" ];
+    then
+      echo 'Horizon is missing'
+      supervisorctl --configuration /etc/supervisor/supervisord.conf stop all
+    else
+      php artisan horizon:terminate
+    fi
+
+queue:
+  driver: supervisor
+  queues:
+    # all are mandatory
+    defaultQueue:
+      sleep: 3
+      tries: 3
+      timeout: 900
+      queue: default
+      user: www-data
+      numprocs: 5
+      connection: 
+
+envVars:
+  APP_KEY: base64:kTA5r2S34nUC6a4kkf6beI3TvkhS4DU6N+UaU8lbues=
+  APP_ENV: production
+  APP_DEBUG: "false"
+
+  LOG_CHANNEL: errorlog
+  LOG_LEVEL: info
+
+  DB_CONNECTION: mysql
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_DATABASE: laravel
+  DB_USERNAME: root
+  DB_PASSWORD: 
+
+  BROADCAST_DRIVER: log
+  CACHE_DRIVER: file
+  FILESYSTEM_DRIVER: local
+  QUEUE_CONNECTION: sync
+  SESSION_DRIVER: file
+  SESSION_LIFETIME: '120'
+  
+  MEMCACHED_HOST: '127.0.0.1'
+
+  REDIS_HOST: '127.0.0.1'
+  REDIS_PASSWORD: ""
+  REDIS_PORT: '6379'
+
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailhog
+  MAIL_PORT: '1025'
+  MAIL_USERNAME: ""
+  MAIL_PASSWORD: ""
+  MAIL_ENCRYPTION: ""
+  MAIL_FROM_ADDRESS: ""
+  MAIL_FROM_NAME: ""

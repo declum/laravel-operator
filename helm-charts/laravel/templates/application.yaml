@@ -36,9 +36,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-          - name: APP_KEY
-            value: base64:kOUxDNsekJqVmkW0WevKD5TufqRX/kYIce/+tBmIMC8=
+          envFrom:
+          - configMapRef:
+              name: {{ include "laravel.fullname" . }}-environments
           ports:
             - name: http
               containerPort: 80

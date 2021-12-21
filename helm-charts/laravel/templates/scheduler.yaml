@@ -36,9 +36,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-          - name: APP_KEY
-            value: base64:kOUxDNsekJqVmkW0WevKD5TufqRX/kYIce/+tBmIMC8=
+          command:
+          - php
+          - artisan
+          - schedule:work
+          envFrom:
+          - configMapRef:
+              name: {{ include "laravel.fullname" . }}-environments
           lifecycle:
             postStart:
               exec:

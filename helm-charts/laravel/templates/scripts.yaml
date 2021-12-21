@@ -8,6 +8,9 @@ data:
   git-action: |-
     #!/bin/bash -e
     set -xe
+    
+    rm -rf /var/www/html/* 2>/dev/null || true
+    rm -rf /var/www/html/.* 2>/dev/null || true
 
     /usr/bin/git clone https://github.com/letout-io/laravel.git /var/www/html
     /usr/local/bin/composer install --working-dir /var/www/html
@@ -22,24 +25,12 @@ metadata:
     {{- include "laravel.labels" . | nindent 4 }}
 data:
   post-start: |-
-    #!/bin/bash -e
-    set -xe
-
-    php artisan down
-    php artisan optimize
-    sleep $[ ( $RANDOM % 10 )  + 1 ]s
-    # php artisan migrate --force
-    php artisan up
+    {{ .Values.postStart | nindent 4 }}
   pre-stop: |-
-    #!/bin/bash -e
-    set -xe
-    
-    php artisan down
+    {{ .Values.preStop | nindent 4 }}
   pre-stop-worker: |-
-    #!/bin/bash -e
-    set -xe
-    
-    php artisan down
-    # php artisan horizon:terminate
-
----
+    {{ .Values.preStopWorker | nindent 4 }}
+  stop-worker: |-
+    {{ .Values.stopWorker | nindent 4 }}
+  start-worker: |-
+    {{ .Values.startWorker | nindent 4 }}

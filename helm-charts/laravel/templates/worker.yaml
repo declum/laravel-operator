@@ -36,9 +36,12 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-          - name: APP_KEY
-            value: base64:kOUxDNsekJqVmkW0WevKD5TufqRX/kYIce/+tBmIMC8=
+          command:
+          - /bin/bash
+          - /usr/letout/bin/start-worker
+          envFrom:
+          - configMapRef:
+              name: {{ include "laravel.fullname" . }}-environments
           lifecycle:
             postStart:
               exec:
@@ -49,7 +52,7 @@ spec:
               exec:
                 command: 
                 - /bin/bash
-                - /usr/letout/bin/pre-stop
+                - /usr/letout/bin/pre-stop-worker
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -57,6 +60,11 @@ spec:
             name: app-code
           - name: laravel-actions
             mountPath: /usr/letout/bin/
+          - name: supervisor-config
+            mountPath: /etc/supervisor/supervisord.conf
+            subPath: supervisord.conf
+          - name: supervisor-queue-config
+            mountPath: /etc/supervisor/conf.d/
       initContainers:
       - name: git-cloner-worker
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -79,6 +87,12 @@ spec:
       - name: laravel-actions
         configMap:
           name: {{ include "laravel.fullname" . }}-laravel-actions
+      - name: supervisor-config
+        configMap:
+          name: {{ include "laravel.fullname" . }}-supervisor-config
+      - name: supervisor-queue-config
+        configMap:
+          name: {{ include "laravel.fullname" . }}-supervisor-queue-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
