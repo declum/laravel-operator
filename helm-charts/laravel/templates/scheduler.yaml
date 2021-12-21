@@ -40,9 +40,14 @@ spec:
           - php
           - artisan
           - schedule:work
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
           envFrom:
-          - configMapRef:
-              name: {{ include "laravel.fullname" . }}-environments
+            {{- if gt (len .Values.envFrom) 0 }}
+            {{- toYaml .Values.envFrom | nindent 12 }}
+            {{- end }}
+            - configMapRef:
+                name: {{ include "laravel.fullname" . }}-environments
           lifecycle:
             postStart:
               exec:
@@ -62,18 +67,26 @@ spec:
           - name: laravel-actions
             mountPath: /usr/letout/bin/
       initContainers:
-      - name: git-cloner-scheduler
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        command:
-        - /bin/bash
-        args:
-        - /usr/letout/bin/git-action
-        volumeMounts:
-        - mountPath: /var/www/html
-          name: app-code
-        - name: git-init
-          mountPath: /usr/letout/bin/
+        - name: git-cloner-scheduler
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+          envFrom:
+            {{- if gt (len .Values.envFrom) 0 }}
+            {{- toYaml .Values.envFrom | nindent 12 }}
+            {{- end }}
+            - configMapRef:
+                name: {{ include "laravel.fullname" . }}-environments
+          command:
+          - /bin/bash
+          args:
+          - /usr/letout/bin/git-action
+          volumeMounts:
+          - mountPath: /var/www/html
+            name: app-code
+          - name: git-init
+            mountPath: /usr/letout/bin/
       volumes:
       - name: app-code
         emptyDir: {}
