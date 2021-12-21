@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "laravel.fullname" . }}
+  name: {{ include "laravel.fullname" . }}-application
   labels:
     io.letout.id: application
     {{- include "laravel.labels" . | nindent 4 }}

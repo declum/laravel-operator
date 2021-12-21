@@ -8,9 +8,11 @@ image:
   repository: declum/laravel
   pullPolicy: Always
   tag: latest
-
+  
 git:
-  repo: https://github.com/letout-io/laravel.git
+  repo: https://github.com/letout-io/laravel-vanilla.git
+  refspec: main
+
 
 imagePullSecrets: []
 nameOverride: ""
@@ -155,9 +157,9 @@ queue:
 envVars:
   APP_KEY: base64:kTA5r2S34nUC6a4kkf6beI3TvkhS4DU6N+UaU8lbues=
   APP_ENV: production
-  APP_DEBUG: "false"
+  APP_DEBUG: false
 
-  LOG_CHANNEL: errorlog
+  LOG_CHANNEL: stderr
   LOG_LEVEL: info
 
   DB_CONNECTION: mysql
@@ -168,23 +170,23 @@ envVars:
   DB_PASSWORD: 
 
   BROADCAST_DRIVER: log
-  CACHE_DRIVER: file
+  CACHE_DRIVER: redis
   FILESYSTEM_DRIVER: local
-  QUEUE_CONNECTION: sync
-  SESSION_DRIVER: file
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
   SESSION_LIFETIME: '120'
   
   MEMCACHED_HOST: '127.0.0.1'
 
-  REDIS_HOST: '127.0.0.1'
-  REDIS_PASSWORD: ""
+  REDIS_HOST: 'redis-standalone'
+  REDIS_PASSWORD: 
   REDIS_PORT: '6379'
 
   MAIL_MAILER: smtp
   MAIL_HOST: mailhog
   MAIL_PORT: '1025'
-  MAIL_USERNAME: ""
-  MAIL_PASSWORD: ""
-  MAIL_ENCRYPTION: ""
-  MAIL_FROM_ADDRESS: ""
-  MAIL_FROM_NAME: ""
+  MAIL_USERNAME: 
+  MAIL_PASSWORD: 
+  MAIL_ENCRYPTION: 
+  MAIL_FROM_ADDRESS: 
+  MAIL_FROM_NAME: 
