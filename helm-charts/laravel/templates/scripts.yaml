@@ -12,7 +12,7 @@ data:
     rm -rf /var/www/html/* 2>/dev/null || true
     rm -rf /var/www/html/.* 2>/dev/null || true
 
-    /usr/bin/git clone https://github.com/letout-io/laravel.git /var/www/html
+    /usr/bin/git clone {{ .Values.git.repo }} /var/www/html
     /usr/local/bin/composer install --working-dir /var/www/html
     /bin/chown -R www-data:www-data /var/www/html
 

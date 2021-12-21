@@ -9,6 +9,9 @@ image:
   pullPolicy: Always
   tag: latest
 
+git:
+  repo: https://github.com/letout-io/laravel.git
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -95,7 +98,7 @@ preStopWorker: |-
 
     # Shutdown horizon
     HORIZON_VERSION=$(jq -r '.require."laravel/horizon"' composer.json)
-    if [ "$horizon" = "" ];
+    if [ "$HORIZON_VERSION" = "null" ];
     then
       echo 'Horizon is missing'
       supervisorctl --configuration /etc/supervisor/supervisord.conf stop all
@@ -111,7 +114,7 @@ startWorker: |-
 
     # Shutdown horizon
     HORIZON_VERSION=$(jq -r '.require."laravel/horizon"' composer.json)
-    if [ "$horizon" = "" ];
+    if [ "$HORIZON_VERSION" = "null" ];
     then
       echo 'Horizon is missing'
       supervisord --nodaemon --configuration /etc/supervisor/supervisord.conf
@@ -128,7 +131,7 @@ stopWorker: |-
 
     # Shutdown horizon
     HORIZON_VERSION=$(jq -r '.require."laravel/horizon"' composer.json)
-    if [ "$horizon" = "" ];
+    if [ "$HORIZON_VERSION" = "null" ];
     then
       echo 'Horizon is missing'
       supervisorctl --configuration /etc/supervisor/supervisord.conf stop all
